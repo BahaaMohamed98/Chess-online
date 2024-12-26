@@ -26,7 +26,7 @@ public class HostGamePanel extends JPanel {
 
         gameHost = new GameHost(this.chessBoard);
 
-        // Add info panel to the North region of the BorderLayout
+        // Add an info panel to the North region of the BorderLayout
         JPanel infoPanel = getInfoPanel();
         add(infoPanel, BorderLayout.NORTH);
 
@@ -63,6 +63,7 @@ public class HostGamePanel extends JPanel {
         hostButton.addActionListener(_ -> {
             // Start the game host and show the game panel
             this.chessBoard.setCommunicator(gameHost);
+            this.chessBoard.reset(false);
             ChessApp.layout.show(ChessApp.mainPanel, "Game");
             gameHost.start(Integer.parseInt(portText.getText()));
         });

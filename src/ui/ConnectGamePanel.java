@@ -57,7 +57,13 @@ public class ConnectGamePanel extends JPanel {
         connectButton.addActionListener(_ -> {
             // Set communicator for the chessboard
             this.chessBoard.setCommunicator(gameClient);
+
+            // reset the board to start a new game
+            this.chessBoard.reset(false);
+            
+            // Switch to the game panel
             ChessApp.layout.show(ChessApp.mainPanel, "Game");
+
             // Start the client communication
             gameClient.connect(ipText.getText(), Integer.parseInt(portText.getText()));
         });
