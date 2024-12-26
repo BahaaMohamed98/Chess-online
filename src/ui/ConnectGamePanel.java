@@ -2,6 +2,9 @@ package ui;
 
 import game.chessBoard;
 import networking.GameClient;
+import ui.components.GameButton;
+import ui.components.GameLabel;
+import ui.components.GameTextField;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,8 +55,8 @@ public class ConnectGamePanel extends JPanel {
         infoPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 50, 20));
 
         // IP Address input (editable)
-        JLabel ipLabel = new JLabel("Server IP Address: ");
-        ipText = new JTextField("127.0.0.1");
+        JLabel ipLabel = new GameLabel("Server IP Address: ");
+        ipText = new GameTextField("127.0.0.1");
         ipText.setPreferredSize(new Dimension(150, 25));
         JPanel ipPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         ipPanel.add(ipLabel);
@@ -61,8 +64,8 @@ public class ConnectGamePanel extends JPanel {
         infoPanel.add(ipPanel);
 
         // Port input (editable)
-        JLabel portLabel = new JLabel("Port: ");
-        portText = new JTextField("8080");
+        JLabel portLabel = new GameLabel("Port: ");
+        portText = new GameTextField("8080");
         portText.setPreferredSize(new Dimension(150, 25)); // Set a fixed width
         JPanel portPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         portPanel.add(portLabel);

@@ -1,7 +1,7 @@
 package game;
 
 import networking.Communicator;
-import ui.GameButton;
+import ui.components.GameCell;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class chessBoard extends JPanel {
-    private final JButton[][] board = new GameButton[8][8];
+    private final JButton[][] board = new GameCell[8][8];
     private final HashMap<JButton, String> pieceMap = new HashMap<>();
     private String selectedPiece = null;
     private int selectedRow = -1, selectedCol = -1;
@@ -26,7 +26,6 @@ public class chessBoard extends JPanel {
     private Communicator communicator = null;
 
     public chessBoard() {
-        setSize(600, 600);
         setLayout(new GridLayout(8, 8));
 
         initializeBoard();
@@ -35,22 +34,22 @@ public class chessBoard extends JPanel {
         setVisible(true);
     }
 
-    private void initializeBoard() {
-        boolean isWhite = true; // Alternate colors for the chessboard
+    @Override
+    public Dimension getPreferredSize() {
+        int size = Math.min(getParent().getWidth(), getParent().getHeight());
+        return new Dimension(size, size);
+    }
 
+    private void initializeBoard() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                JButton cell = new GameButton();
+                JButton cell = new GameCell(getDefaultColor(row, col));
 
-                cell.setBackground(isWhite ? color_white : color_black);
                 cell.addActionListener(new ChessActionListener(row, col));
 
                 board[row][col] = cell;
                 add(cell);
-
-                isWhite = !isWhite; // Toggle color
             }
-            isWhite = !isWhite; // Alternate at the end of each row
         }
     }
 
@@ -66,14 +65,16 @@ public class chessBoard extends JPanel {
         public void actionPerformed(ActionEvent e) {
             JButton clickedCell = board[row][col];
 
-            if (selectedPiece == null && pieceMap.containsKey(clickedCell)) { // select piece if no piece was selected
+            // select the clicked piece if no piece was selected
+            if (selectedPiece == null && pieceMap.containsKey(clickedCell)) {
                 selectPiece(clickedCell);
             } else if (selectedPiece != null) {
-                if (selectedRow == row && selectedCol == col) { // if the same piece is selected again deselect it
+                if (selectedRow == row && selectedCol == col) { // if the same piece is selected again, deselect it
                     deselectPiece();
-                } else if (sameTeam(board[selectedRow][selectedCol], board[row][col])) { // if the second piece is from the same team discard the first
+                } else if (sameTeam(board[selectedRow][selectedCol], board[row][col])) {
+                    // if the second piece is from the same team, discard the first
                     deselectPiece(); // discard the first piece
-                    actionPerformed(e); // select the second piece
+                    selectPiece(clickedCell); // select the second piece
                 } else {
                     handleMove(); // make the move
                 }
@@ -190,7 +191,7 @@ public class chessBoard extends JPanel {
 
         ImageIcon icon = new ImageIcon(iconURL);
 
-        int size = getWidth() / 8;
+        int size = 75;
         Image scaledImage = icon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
         return new ImageIcon(scaledImage);
     }

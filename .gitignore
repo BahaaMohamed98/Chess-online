@@ -2,8 +2,6 @@
 out/
 src/META-INF/
 
-src/META-INF/
-
 *.xml
 *.iml
 *.class
