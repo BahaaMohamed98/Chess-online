@@ -43,7 +43,7 @@ public class ConnectGamePanel extends JPanel {
         // Add some vertical spacing between buttons
         buttonsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Back to Main Menu Button
+        // Back to the Main Menu Button
         JButton backButton = getBackButton();
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonsPanel.add(backButton);
@@ -60,6 +60,9 @@ public class ConnectGamePanel extends JPanel {
 
             // reset the board to start a new game
             this.chessBoard.reset(false);
+
+            // Set the player color to black
+            this.chessBoard.setPlayerColor("black");
             
             // Switch to the game panel
             ChessApp.layout.show(ChessApp.mainPanel, "Game");

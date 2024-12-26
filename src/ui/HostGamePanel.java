@@ -64,6 +64,8 @@ public class HostGamePanel extends JPanel {
             // Start the game host and show the game panel
             this.chessBoard.setCommunicator(gameHost);
             this.chessBoard.reset(false);
+            this.chessBoard.setPlayerColor("white");
+
             ChessApp.layout.show(ChessApp.mainPanel, "Game");
             gameHost.start(Integer.parseInt(portText.getText()));
         });

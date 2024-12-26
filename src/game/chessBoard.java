@@ -19,6 +19,7 @@ public class chessBoard extends JPanel {
     private String selectedPiece = null;
     private int selectedRow = -1, selectedCol = -1;
     private boolean whiteTurn = true;
+    private String playerColor = null;
 
     private static final Color color_white = new Color(Color.white.getRGB());
     private static final Color color_black = new Color(129, 182, 76);
@@ -53,6 +54,11 @@ public class chessBoard extends JPanel {
         }
     }
 
+    public void setPlayerColor(String playerColor) {
+        this.playerColor = playerColor;
+    }
+
+
     private class ChessActionListener implements ActionListener {
         private final int row, col;
 
@@ -82,6 +88,10 @@ public class chessBoard extends JPanel {
         }
 
         private void selectPiece(JButton clickedCell) {
+            if ((playerColor != null) && !((playerColor.equals("white") && whiteTurn) || (playerColor.equals("black") && !whiteTurn))) {
+                return;
+            }
+
             // check for whose turn
             if ((pieceMap.get(clickedCell).startsWith("black") && whiteTurn) || (pieceMap.get(clickedCell).startsWith("white") && !whiteTurn)) {
                 return;
@@ -191,7 +201,7 @@ public class chessBoard extends JPanel {
 
         ImageIcon icon = new ImageIcon(iconURL);
 
-        int size = 75;
+        int size = 70;
         Image scaledImage = icon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
         return new ImageIcon(scaledImage);
     }
