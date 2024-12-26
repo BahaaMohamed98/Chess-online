@@ -75,11 +75,7 @@ public class ChessGamePanel extends JPanel {
 
     private JLabel getPlayerLabel() {
         JLabel playerLabel = new GameLabel("Player: BahaaMohamed98", SwingConstants.CENTER);
-        playerLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        playerLabel.setForeground(Color.WHITE); // White text color for better contrast
         playerLabel.setBackground(new Color(60, 63, 65)); // Match the button background color
-        playerLabel.setOpaque(true); // Make the background color visible
-        playerLabel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Add padding around the text
 
         return playerLabel;
     }

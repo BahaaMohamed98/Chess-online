@@ -10,13 +10,13 @@ public class GameLabel extends JLabel {
     // Constructor that only takes text
     public GameLabel(String text) {
         super(text); // Initialize JLabel with text
-        this.defaultColor = new Color(44, 62, 80); // Dark blue-gray background
+        this.defaultColor = new Color(30, 30, 30); // Match the game panel background
         this.selectedColor = new Color(34, 153, 84); // Light green when selected
         setOpaque(false); // Set opaque to false allowing custom background rendering
         setForeground(Color.WHITE); // White text color for contrast
 
         // Set a larger font size for better visibility
-        setFont(new Font("Arial", Font.BOLD, 14)); // Larger and bold font
+        setFont(new Font("Arial", Font.BOLD, 16)); // Larger and bold font
 
         // Add padding for extra spacing around the text
         setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20)); // Adds padding to all sides

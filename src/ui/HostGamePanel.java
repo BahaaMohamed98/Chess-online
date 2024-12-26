@@ -22,7 +22,7 @@ public class HostGamePanel extends JPanel {
 
         // Set layout and background color
         setLayout(new BorderLayout());
-        setBackground(new Color(44, 62, 80)); // Dark blue-gray color
+        setBackground(new Color(30, 30, 30)); // Match the game panel background
 
         gameHost = new GameHost(this.chessBoard);
 
@@ -30,15 +30,35 @@ public class HostGamePanel extends JPanel {
         JPanel infoPanel = getInfoPanel();
         add(infoPanel, BorderLayout.NORTH);
 
-        // Add host button panel to the center region of the BorderLayout
-        JPanel hostButtonPanel = getHostButtonPanel();
-        add(hostButtonPanel, BorderLayout.CENTER);
+        // Buttons Panel
+        JPanel buttonsPanel = getButtonsPanel();
+        add(buttonsPanel, BorderLayout.CENTER);
     }
 
-    private JPanel getHostButtonPanel() {
-        // Create the "Host Game" button
+    private JPanel getButtonsPanel() {
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
+        buttonsPanel.setBackground(new Color(30, 30, 30)); // Match background color
+
+        // Host Button
+        JButton hostButton = getHostButton();
+        hostButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonsPanel.add(hostButton);
+
+        // Add some vertical spacing between buttons
+        buttonsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+
+        // Back to Main Menu Button
+        JButton backButton = getBackButton();
+        backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonsPanel.add(backButton);
+
+        return buttonsPanel;
+    }
+
+    private JButton getHostButton() {
         JButton hostButton = new GameButton("Host Game");
-        hostButton.setPreferredSize(new Dimension(200, 40));
+        hostButton.setPreferredSize(new Dimension(250, 40));
 
         hostButton.addActionListener(_ -> {
             // Start the game host and show the game panel
@@ -47,11 +67,15 @@ public class HostGamePanel extends JPanel {
             gameHost.start(Integer.parseInt(portText.getText()));
         });
 
-        // Use a FlowLayout for the button panel
-        JPanel hostButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        hostButtonPanel.add(hostButton); // No need for BorderLayout.SOUTH here
+        return hostButton;
+    }
 
-        return hostButtonPanel;
+    private JButton getBackButton() {
+        JButton backButton = new GameButton("Menu");
+        backButton.setPreferredSize(new Dimension(250, 40));
+        backButton.addActionListener(_ -> ChessApp.layout.show(ChessApp.mainPanel, "Menu"));
+
+        return backButton;
     }
 
     private JPanel getInfoPanel() {
@@ -59,6 +83,7 @@ public class HostGamePanel extends JPanel {
         JPanel infoPanel = new JPanel();
         BoxLayout layout = new BoxLayout(infoPanel, BoxLayout.Y_AXIS);
         infoPanel.setLayout(layout);
+        infoPanel.setBackground(new Color(30, 30, 30)); // Match background color
 
         // Add some padding to the panel
         infoPanel.setBorder(BorderFactory.createEmptyBorder(30, 30, 50, 20));
@@ -82,6 +107,7 @@ public class HostGamePanel extends JPanel {
 
         // Panel to hold the label and text field
         JPanel portPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Align the label and text field nicely
+        portPanel.setBackground(new Color(30, 30, 30)); // Match background color
         portPanel.add(portLabel);
         portPanel.add(portText);
 
@@ -94,6 +120,7 @@ public class HostGamePanel extends JPanel {
 
         // Panel to hold the IP label
         JPanel ipPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Align the label to the left
+        ipPanel.setBackground(new Color(30, 30, 30)); // Match background color
         ipPanel.add(ipLabel);
 
         return ipPanel;
