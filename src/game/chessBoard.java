@@ -12,6 +12,7 @@ import javax.sound.sampled.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 public class chessBoard extends JPanel {
     private final JButton[][] board = new GameButton[8][8];
@@ -20,8 +21,8 @@ public class chessBoard extends JPanel {
     private int selectedRow = -1, selectedCol = -1;
     private boolean whiteTurn = true;
 
-    private final Color color_white = new Color(Color.white.getRGB());
-    private final Color color_black = new Color(129, 182, 76);
+    private static final Color color_white = new Color(Color.white.getRGB());
+    private static final Color color_black = new Color(129, 182, 76);
 
     private Communicator communicator = null;
 
@@ -51,6 +52,61 @@ public class chessBoard extends JPanel {
                 isWhite = !isWhite; // Toggle color
             }
             isWhite = !isWhite; // Alternate at the end of each row
+        }
+    }
+
+    private class ChessActionListener implements ActionListener {
+        private final int row, col;
+
+        public ChessActionListener(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JButton clickedCell = board[row][col];
+            if (selectedPiece == null && pieceMap.containsKey(clickedCell)) {
+                // check for whose turn
+                if ((pieceMap.get(clickedCell).startsWith("black") && whiteTurn) || (pieceMap.get(clickedCell).startsWith("white") && !whiteTurn)) {
+                    return;
+                }
+
+                // Select a piece
+                selectedPiece = pieceMap.get(clickedCell);
+                selectedRow = row;
+                selectedCol = col;
+                clickedCell.setBackground(Color.YELLOW);
+
+            } else if (selectedPiece != null) {
+                if ((selectedRow == row && selectedCol == col) ||
+                        sameTeam(board[selectedRow][selectedCol], board[row][col])) {
+                    deselectPiece();
+                    return;
+                }
+
+                // Try to move the piece
+                if (isValidMove(selectedPiece, selectedRow, selectedCol, row, col)) {
+                    // Move the piece
+                    makeMove(selectedRow, selectedCol, row, col, true);
+                } else {
+                    playSound("illegal");
+                }
+
+                // Deselect the piece
+                deselectPiece();
+            }
+        }
+
+        private boolean sameTeam(JButton first, JButton second) {
+            String s = pieceMap.get(second);
+
+            if (s == null) {
+                return false;
+            }
+
+            return (pieceMap.get(first).startsWith("white") && s.startsWith("white")) ||
+                    (pieceMap.get(first).startsWith("black") && s.startsWith("black"));
         }
     }
 
@@ -116,8 +172,15 @@ public class chessBoard extends JPanel {
     }
 
     private ImageIcon loadPieceImage(String pieceName) {
-        String filePath = "assets/images/" + pieceName + ".png";
-        ImageIcon icon = new ImageIcon(filePath);
+        String filePath = "/images/" + pieceName + ".png";
+        var iconURL = getClass().getResource(filePath);
+
+        if (iconURL == null) {
+            System.err.println("Image not found: " + filePath);
+            return null;
+        }
+
+        ImageIcon icon = new ImageIcon(iconURL);
 
         int size = getWidth() / 8;
         Image scaledImage = icon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
@@ -127,8 +190,8 @@ public class chessBoard extends JPanel {
     private void playSound(String soundFile) {
         new Thread(() -> {
             try {
-                File file = new File("assets/sounds/" + soundFile + ".wav");
-                AudioInputStream audioStream = AudioSystem.getAudioInputStream(file);
+                String path = "/sounds/" + soundFile + ".wav";
+                AudioInputStream audioStream = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource(path)));
                 var clip = AudioSystem.getClip();
                 clip.open(audioStream);
                 clip.start();
@@ -136,61 +199,6 @@ public class chessBoard extends JPanel {
                 System.err.println("Error playing sound: " + e.getMessage());
             }
         }).start();
-    }
-
-    private class ChessActionListener implements ActionListener {
-        private final int row, col;
-
-        public ChessActionListener(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JButton clickedCell = board[row][col];
-            if (selectedPiece == null && pieceMap.containsKey(clickedCell)) {
-                // check for whose turn
-                if ((pieceMap.get(clickedCell).startsWith("black") && whiteTurn) || (pieceMap.get(clickedCell).startsWith("white") && !whiteTurn)) {
-                    return;
-                }
-
-                // Select a piece
-                selectedPiece = pieceMap.get(clickedCell);
-                selectedRow = row;
-                selectedCol = col;
-                clickedCell.setBackground(Color.YELLOW);
-
-            } else if (selectedPiece != null) {
-                if ((selectedRow == row && selectedCol == col) ||
-                        sameTeam(board[selectedRow][selectedCol], board[row][col])) {
-                    deselectPiece();
-                    return;
-                }
-
-                // Try to move the piece
-                if (isValidMove(selectedPiece, selectedRow, selectedCol, row, col)) {
-                    // Move the piece
-                    makeMove(selectedRow, selectedCol, row, col, true);
-                } else {
-                    playSound("illegal");
-                }
-
-                // Deselect the piece
-                deselectPiece();
-            }
-        }
-
-        private boolean sameTeam(JButton first, JButton second) {
-            var s = pieceMap.get(second);
-
-            if (s == null) {
-                return false;
-            }
-
-            return (pieceMap.get(first).startsWith("white") && s.startsWith("white")) ||
-                    (pieceMap.get(first).startsWith("black") && s.startsWith("black"));
-        }
     }
 
     private Color getDefaultColor(int row, int col) {
@@ -225,8 +233,7 @@ public class chessBoard extends JPanel {
 
         setPiece(toCell, selectedPiece); // Set the piece in the new cell
 
-        // todo:
-        if (sendMove && communicator != null /*&& whiteTurn*/) {
+        if (sendMove && communicator != null) {
             communicator.sendMove(getMoveNotation(fromRow, fromCol, toRow, toCol));
         }
 
@@ -244,7 +251,6 @@ public class chessBoard extends JPanel {
 
         return from + "-" + to;
     }
-
 
     private void toggleTurn() {
         whiteTurn = !whiteTurn;
@@ -279,6 +285,7 @@ public class chessBoard extends JPanel {
         }
 
         pieceMap.clear();
+        this.whiteTurn = true;
 
         for (JButton[] row : board) {
             for (JButton button : row) {

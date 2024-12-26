@@ -17,7 +17,7 @@ public class ChessApp extends JFrame {
         setLocationRelativeTo(null); // Center the window
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        setIconImage(new ImageIcon("assets/images/gameIcon.png").getImage());
+        setIconImage(new ImageIcon("/images/gameIcon.png").getImage());
 
         chessBoard chessBoard = new chessBoard();
 
