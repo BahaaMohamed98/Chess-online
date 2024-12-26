@@ -10,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import javax.sound.sampled.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -66,36 +65,45 @@ public class chessBoard extends JPanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             JButton clickedCell = board[row][col];
-            if (selectedPiece == null && pieceMap.containsKey(clickedCell)) {
-                // check for whose turn
-                if ((pieceMap.get(clickedCell).startsWith("black") && whiteTurn) || (pieceMap.get(clickedCell).startsWith("white") && !whiteTurn)) {
-                    return;
-                }
 
-                // Select a piece
-                selectedPiece = pieceMap.get(clickedCell);
-                selectedRow = row;
-                selectedCol = col;
-                clickedCell.setBackground(Color.YELLOW);
-
+            if (selectedPiece == null && pieceMap.containsKey(clickedCell)) { // select piece if no piece was selected
+                selectPiece(clickedCell);
             } else if (selectedPiece != null) {
-                if ((selectedRow == row && selectedCol == col) ||
-                        sameTeam(board[selectedRow][selectedCol], board[row][col])) {
+                if (selectedRow == row && selectedCol == col) { // if the same piece is selected again deselect it
                     deselectPiece();
-                    return;
-                }
-
-                // Try to move the piece
-                if (isValidMove(selectedPiece, selectedRow, selectedCol, row, col)) {
-                    // Move the piece
-                    makeMove(selectedRow, selectedCol, row, col, true);
+                } else if (sameTeam(board[selectedRow][selectedCol], board[row][col])) { // if the second piece is from the same team discard the first
+                    deselectPiece(); // discard the first piece
+                    actionPerformed(e); // select the second piece
                 } else {
-                    playSound("illegal");
+                    handleMove(); // make the move
                 }
-
-                // Deselect the piece
-                deselectPiece();
             }
+        }
+
+        private void selectPiece(JButton clickedCell) {
+            // check for whose turn
+            if ((pieceMap.get(clickedCell).startsWith("black") && whiteTurn) || (pieceMap.get(clickedCell).startsWith("white") && !whiteTurn)) {
+                return;
+            }
+
+            // Select a piece
+            selectedPiece = pieceMap.get(clickedCell);
+            selectedRow = row;
+            selectedCol = col;
+            clickedCell.setBackground(Color.YELLOW);
+        }
+
+        private void handleMove() {
+            // Try to move the piece
+            if (isValidMove(selectedPiece, selectedRow, selectedCol, row, col)) {
+                // Move the piece
+                makeMove(selectedRow, selectedCol, row, col, true);
+            } else {
+                playSound("illegal");
+            }
+
+            // Deselect the piece
+            deselectPiece();
         }
 
         private boolean sameTeam(JButton first, JButton second) {

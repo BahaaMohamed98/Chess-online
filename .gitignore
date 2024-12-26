@@ -1,6 +1,8 @@
 .idea/
 out/
 
+src/META-INF/
+
 *.xml
 *.iml
 *.class
