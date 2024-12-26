@@ -1,5 +1,6 @@
 package game;
 
+import com.github.bhlangonijr.chesslib.Board;
 import networking.Communicator;
 import ui.components.GameCell;
 
