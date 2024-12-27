@@ -1,5 +1,9 @@
 package game;
 
+import com.github.bhlangonijr.chesslib.Board;
+import com.github.bhlangonijr.chesslib.Side;
+import com.github.bhlangonijr.chesslib.Square;
+import com.github.bhlangonijr.chesslib.move.Move;
 import networking.Communicator;
 import ui.components.GameCell;
 
@@ -11,11 +15,14 @@ import java.util.HashMap;
 import javax.sound.sampled.*;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 public class chessBoard extends JPanel {
-    private final JButton[][] board = new GameCell[8][8];
+    private final JButton[][] gameCells = new GameCell[8][8];
     private final HashMap<JButton, String> pieceMap = new HashMap<>();
+
+    private Board board;
     private String selectedPiece = null;
     private int selectedRow = -1, selectedCol = -1;
     private boolean whiteTurn = true;
@@ -29,7 +36,10 @@ public class chessBoard extends JPanel {
     public chessBoard() {
         setLayout(new GridLayout(8, 8));
 
-        initializeBoard();
+        this.board = new Board();
+        this.board.setSideToMove(Side.WHITE);
+
+        initializeCells();
         initializePieces();
 
         setVisible(true);
@@ -41,14 +51,14 @@ public class chessBoard extends JPanel {
         return new Dimension(size, size);
     }
 
-    private void initializeBoard() {
+    private void initializeCells() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 JButton cell = new GameCell(getDefaultColor(row, col));
 
                 cell.addActionListener(new ChessActionListener(row, col));
 
-                board[row][col] = cell;
+                gameCells[row][col] = cell;
                 add(cell);
             }
         }
@@ -69,7 +79,7 @@ public class chessBoard extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            JButton clickedCell = board[row][col];
+            JButton clickedCell = gameCells[row][col];
 
             // select the clicked piece if no piece was selected
             if (selectedPiece == null && pieceMap.containsKey(clickedCell)) {
@@ -77,7 +87,7 @@ public class chessBoard extends JPanel {
             } else if (selectedPiece != null) {
                 if (selectedRow == row && selectedCol == col) { // if the same piece is selected again, deselect it
                     deselectPiece();
-                } else if (sameTeam(board[selectedRow][selectedCol], board[row][col])) {
+                } else if (sameTeam(gameCells[selectedRow][selectedCol], gameCells[row][col])) {
                     // if the second piece is from the same team, discard the first
                     deselectPiece(); // discard the first piece
                     selectPiece(clickedCell); // select the second piece
@@ -105,8 +115,9 @@ public class chessBoard extends JPanel {
         }
 
         private void handleMove() {
+
             // Try to move the piece
-            if (isValidMove(selectedPiece, selectedRow, selectedCol, row, col)) {
+            if (isValidMove(selectedRow, selectedCol, row, col)) {
                 // Move the piece
                 makeMove(selectedRow, selectedCol, row, col, true);
             } else {
@@ -164,7 +175,7 @@ public class chessBoard extends JPanel {
         int col = getCol(position);
         int row = getRow(position);
 
-        return board[row][col];
+        return gameCells[row][col];
     }
 
     private int getRow(String position) {
@@ -226,7 +237,7 @@ public class chessBoard extends JPanel {
 
     private void deselectPiece() {
         if (selectedCol != -1 && selectedRow != -1) {
-            board[selectedRow][selectedCol].setBackground(getDefaultColor(selectedRow, selectedCol));
+            gameCells[selectedRow][selectedCol].setBackground(getDefaultColor(selectedRow, selectedCol));
         }
 
         selectedPiece = null;
@@ -235,19 +246,30 @@ public class chessBoard extends JPanel {
     }
 
     private void makeMove(int fromRow, int fromCol, int toRow, int toCol, boolean sendMove) {
-        JButton fromCell = board[fromRow][fromCol], toCell = board[toRow][toCol];
+        JButton fromCell = gameCells[fromRow][fromCol], toCell = gameCells[toRow][toCol];
 
         if (fromCell == null || toCell == null || !pieceMap.containsKey(fromCell)) {
             return;
         }
 
+        board.doMove(getMove(fromRow, fromCol, toRow, toCol), true);
+
+        System.out.println("Legal moves: " + board.legalMoves());
+        System.out.println(board);
+
         pieceMap.remove(fromCell); // Clear the old cell
         fromCell.setIcon(null);
-
-        if (pieceMap.containsKey(toCell)) {
+        
+        if (board.isKingAttacked()) {
+            playSound("check");
+        } else if (pieceMap.containsKey(toCell)) {
             playSound("capture");
         } else {
             playSound("move");
+        }
+
+        if (board.isKingAttacked()) {
+            System.out.println("CHECK!");
         }
 
         setPiece(toCell, selectedPiece); // Set the piece in the new cell
@@ -257,6 +279,16 @@ public class chessBoard extends JPanel {
         }
 
         toggleTurn();
+    }
+
+    private Square getSquare(int row, int col) {
+        int linearIndex = (8 - row - 1) * 8 + col;
+        Square s = Square.squareAt(linearIndex);
+        return s;
+    }
+
+    private Move getMove(int fromRow, int fromCol, int toRow, int toCol) {
+        return new Move(getSquare(fromRow, fromCol), getSquare(toRow, toCol));
     }
 
     private String getMoveNotation(int fromRow, int fromCol, int toRow, int toCol) {
@@ -275,8 +307,11 @@ public class chessBoard extends JPanel {
         whiteTurn = !whiteTurn;
     }
 
-    private boolean isValidMove(String ignoredPiece, int ignoredFromRow, int ignoredFromCol, int ignoredToRow, int ignoredToCol) {
-        return true;
+    private boolean isValidMove(int fromRow, int fromCol, int toRow, int toCol) {
+        Move move = getMove(fromRow, fromCol, toRow, toCol);
+
+        List<Move> legalMoves = board.legalMoves();
+        return legalMoves.contains(move);
     }
 
     public void updateBoard(String move) {
@@ -291,7 +326,7 @@ public class chessBoard extends JPanel {
         int fromRow = getRow(mv[0]), fromCol = getCol(mv[0]),
                 toRow = getRow(mv[1]), toCol = getCol(mv[1]);
 
-        JButton fromCell = board[fromRow][fromCol];
+        JButton fromCell = gameCells[fromRow][fromCol];
 
         selectedPiece = pieceMap.get(fromCell);
         makeMove(fromRow, fromCol, toRow, toCol, false);
@@ -305,8 +340,9 @@ public class chessBoard extends JPanel {
 
         pieceMap.clear();
         this.whiteTurn = true;
+        this.board = new Board();
 
-        for (JButton[] row : board) {
+        for (JButton[] row : gameCells) {
             for (JButton button : row) {
                 button.setIcon(null);
             }

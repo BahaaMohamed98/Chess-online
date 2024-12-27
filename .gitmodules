@@ -1,3 +1,3 @@
-[submodule "src/libs/chesslib"]
+[submodule "chesslib"]
 	path = src/libs/chesslib
 	url = https://github.com/bhlangonijr/chesslib.git
