@@ -1,8 +1,6 @@
 package game;
 
-import com.github.bhlangonijr.chesslib.Board;
-import com.github.bhlangonijr.chesslib.Side;
-import com.github.bhlangonijr.chesslib.Square;
+import com.github.bhlangonijr.chesslib.*;
 import com.github.bhlangonijr.chesslib.move.Move;
 import networking.Communicator;
 import ui.components.GameCell;
@@ -24,6 +22,7 @@ public class chessBoard extends JPanel {
 
     private Board board;
     private String selectedPiece = null;
+    private List<Move> selectedPieceLegalMoves;
     private int selectedRow = -1, selectedCol = -1;
     private boolean whiteTurn = true;
     private String playerColor = null;
@@ -112,6 +111,16 @@ public class chessBoard extends JPanel {
             selectedRow = row;
             selectedCol = col;
             clickedCell.setBackground(Color.YELLOW);
+
+            selectedPieceLegalMoves = board.legalMoves().stream()
+                    .filter(item -> item.getFrom().equals(getSquare(selectedRow, selectedCol)))
+                    .toList();
+
+            for (final Move move : selectedPieceLegalMoves) {
+                getCell(move.getTo()).setBackground(new Color(173, 216, 230));
+            }
+
+            System.out.println("legal moves for " + board.getPiece(getSquare(selectedRow, selectedCol)) + " : " + selectedPieceLegalMoves);
         }
 
         private void handleMove() {
@@ -178,16 +187,31 @@ public class chessBoard extends JPanel {
         return gameCells[row][col];
     }
 
+    private JButton getCell(Square square) {
+        int row = getRow(square);
+        int col = getCol(square);
+
+        return gameCells[row][col];
+    }
+
     private int getRow(String position) {
         assert position.length() == 2;
 
         return 8 - (position.charAt(1) - '0' - 1) - 1;
     }
 
+    private int getRow(Square square) {
+        return 8 - square.getRank().ordinal() - 1;
+    }
+
     private int getCol(String position) {
         assert position.length() == 2;
 
         return position.charAt(0) - 'a';
+    }
+
+    private int getCol(Square square) {
+        return square.getFile().ordinal();
     }
 
     private void setPiece(JButton button, String pieceName, String color) {
@@ -238,6 +262,15 @@ public class chessBoard extends JPanel {
     private void deselectPiece() {
         if (selectedCol != -1 && selectedRow != -1) {
             gameCells[selectedRow][selectedCol].setBackground(getDefaultColor(selectedRow, selectedCol));
+
+            for (final Move move : selectedPieceLegalMoves) {
+                final Square toSquare = move.getTo();
+
+                int row = getRow(toSquare);
+                int col = getCol(toSquare);
+
+                gameCells[row][col].setBackground(getDefaultColor(row, col));
+            }
         }
 
         selectedPiece = null;
@@ -252,10 +285,7 @@ public class chessBoard extends JPanel {
             return;
         }
 
-        board.doMove(getMove(fromRow, fromCol, toRow, toCol), true);
-
-        System.out.println("Legal moves: " + board.legalMoves());
-        System.out.println(board);
+        board.doMove(getMove(fromRow, fromCol, toRow, toCol));
 
         pieceMap.remove(fromCell); // Clear the old cell
         fromCell.setIcon(null);
@@ -266,10 +296,6 @@ public class chessBoard extends JPanel {
             playSound("capture");
         } else {
             playSound("move");
-        }
-
-        if (board.isKingAttacked()) {
-            System.out.println("CHECK!");
         }
 
         setPiece(toCell, selectedPiece); // Set the piece in the new cell
