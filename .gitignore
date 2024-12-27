@@ -1,6 +1,7 @@
 .idea/
 out/
 src/META-INF/
+build/
 
 *.MF
 *.xml

@@ -49,7 +49,7 @@ public class HostGamePanel extends JPanel {
         // Add some vertical spacing between buttons
         buttonsPanel.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Back to Main Menu Button
+        // Back to the Main Menu Button
         JButton backButton = getBackButton();
         backButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonsPanel.add(backButton);
