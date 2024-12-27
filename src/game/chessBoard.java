@@ -18,14 +18,13 @@ import java.util.Objects;
 
 public class chessBoard extends JPanel {
     private final JButton[][] gameCells = new GameCell[8][8];
-    private final HashMap<JButton, String> pieceMap = new HashMap<>();
-
+    private final HashMap<JButton, Piece> pieceMap = new HashMap<>();
     private Board board;
-    private String selectedPiece = null;
+    private Piece selectedPiece = null;
     private List<Move> selectedPieceLegalMoves;
     private int selectedRow = -1, selectedCol = -1;
-    private boolean whiteTurn = true;
-    private String playerColor = null;
+    private Side sideToPlay = Side.WHITE;
+    private Side playerSide = null;
 
     private static final Color color_white = new Color(Color.white.getRGB());
     private static final Color color_black = new Color(129, 182, 76);
@@ -63,8 +62,8 @@ public class chessBoard extends JPanel {
         }
     }
 
-    public void setPlayerColor(String playerColor) {
-        this.playerColor = playerColor;
+    public void setPlayerSide(Side playerSide) {
+        this.playerSide = playerSide;
     }
 
 
@@ -86,7 +85,7 @@ public class chessBoard extends JPanel {
             } else if (selectedPiece != null) {
                 if (selectedRow == row && selectedCol == col) { // if the same piece is selected again, deselect it
                     deselectPiece();
-                } else if (sameTeam(gameCells[selectedRow][selectedCol], gameCells[row][col])) {
+                } else if (sameTeam(getPiece(selectedRow, selectedCol), getPiece(row, col))) {
                     // if the second piece is from the same team, discard the first
                     deselectPiece(); // discard the first piece
                     selectPiece(clickedCell); // select the second piece
@@ -97,12 +96,12 @@ public class chessBoard extends JPanel {
         }
 
         private void selectPiece(JButton clickedCell) {
-            if ((playerColor != null) && !((playerColor.equals("white") && whiteTurn) || (playerColor.equals("black") && !whiteTurn))) {
+            if ((playerSide != null) && !playerSide.equals(sideToPlay)) {
                 return;
             }
 
             // check for whose turn
-            if ((pieceMap.get(clickedCell).startsWith("black") && whiteTurn) || (pieceMap.get(clickedCell).startsWith("white") && !whiteTurn)) {
+            if (!pieceMap.get(clickedCell).getPieceSide().equals(sideToPlay)) {
                 return;
             }
 
@@ -119,12 +118,9 @@ public class chessBoard extends JPanel {
             for (final Move move : selectedPieceLegalMoves) {
                 getCell(move.getTo()).setBackground(new Color(173, 216, 230));
             }
-
-            System.out.println("legal moves for " + board.getPiece(getSquare(selectedRow, selectedCol)) + " : " + selectedPieceLegalMoves);
         }
 
         private void handleMove() {
-
             // Try to move the piece
             if (isValidMove(selectedRow, selectedCol, row, col)) {
                 // Move the piece
@@ -137,54 +133,26 @@ public class chessBoard extends JPanel {
             deselectPiece();
         }
 
-        private boolean sameTeam(JButton first, JButton second) {
-            String s = pieceMap.get(second);
-
-            if (s == null) {
-                return false;
-            }
-
-            return (pieceMap.get(first).startsWith("white") && s.startsWith("white")) ||
-                    (pieceMap.get(first).startsWith("black") && s.startsWith("black"));
+        private boolean sameTeam(Piece first, Piece second) {
+            return first.getPieceSide().equals(second.getPieceSide());
         }
     }
+
 
     public void setCommunicator(Communicator communicator) {
         this.communicator = communicator;
     }
 
-    private void initializePieces(String color) {
-        for (int j = 0; j < 8; ++j) {
-            setPiece(getCell(((char) ('a' + j)) + (color.equals("white") ? "2" : "7")), "pawn", color);
-        }
-
-        int rank = color.equals("white") ? 1 : 8;
-
-        setPiece(getCell("a" + (char) ('0' + rank)), "rook", color);
-        setPiece(getCell("h" + (char) ('0' + rank)), "rook", color);
-
-        setPiece(getCell("b" + (char) ('0' + rank)), "knight", color);
-        setPiece(getCell("g" + (char) ('0' + rank)), "knight", color);
-
-        setPiece(getCell("c" + (char) ('0' + rank)), "bishop", color);
-        setPiece(getCell("f" + (char) ('0' + rank)), "bishop", color);
-
-
-        setPiece(getCell("d" + (char) ('0' + rank)), "queen", color);
-
-        setPiece(getCell("e" + (char) ('0' + rank)), "king", color);
-    }
-
     private void initializePieces() {
-        initializePieces("white");
-        initializePieces("black");
-    }
+        for (int row = 0; row < 8; ++row) {
+            for (int col = 0; col < 8; ++col) {
+                Piece piece = getPiece(row, col);
 
-    private JButton getCell(String position) {
-        int col = getCol(position);
-        int row = getRow(position);
-
-        return gameCells[row][col];
+                if (!piece.equals(Piece.NONE)) {
+                    setPiece(gameCells[row][col], getPiece(row, col));
+                }
+            }
+        }
     }
 
     private JButton getCell(Square square) {
@@ -214,19 +182,14 @@ public class chessBoard extends JPanel {
         return square.getFile().ordinal();
     }
 
-    private void setPiece(JButton button, String pieceName, String color) {
+    private void setPiece(JButton button, Piece piece) {
         // Associate the button with the piece name
-        String name = color.isEmpty() ? pieceName : color + "-" + pieceName;
-        pieceMap.put(button, name);
-        button.setIcon(loadPieceImage(name));
+        pieceMap.put(button, piece);
+        button.setIcon(loadPieceImage(piece));
     }
 
-    private void setPiece(JButton button, String pieceName) {
-        setPiece(button, pieceName, "");
-    }
-
-    private ImageIcon loadPieceImage(String pieceName) {
-        String filePath = "/images/" + pieceName + ".png";
+    private ImageIcon loadPieceImage(Piece piece) {
+        String filePath = "/images/" + piece.name() + ".png";
         var iconURL = getClass().getResource(filePath);
 
         if (iconURL == null) {
@@ -270,12 +233,14 @@ public class chessBoard extends JPanel {
                 int col = getCol(toSquare);
 
                 gameCells[row][col].setBackground(getDefaultColor(row, col));
+
             }
         }
 
         selectedPiece = null;
         selectedRow = -1;
         selectedCol = -1;
+        selectedPieceLegalMoves = null;
     }
 
     private void makeMove(int fromRow, int fromCol, int toRow, int toCol, boolean sendMove) {
@@ -286,6 +251,8 @@ public class chessBoard extends JPanel {
         }
 
         board.doMove(getMove(fromRow, fromCol, toRow, toCol));
+
+        doPromotion(fromRow, fromCol, toRow, toCol);
 
         pieceMap.remove(fromCell); // Clear the old cell
         fromCell.setIcon(null);
@@ -307,46 +274,66 @@ public class chessBoard extends JPanel {
         toggleTurn();
     }
 
+    private void doPromotion(int fromRow, int fromCol, int toRow, int toCol) {
+        Square toSquare = getSquare(toRow, toCol);
+        Piece newPiece = board.getPiece(toSquare);
+
+        if (pieceMap.get(gameCells[fromRow][fromCol]).getPieceType().equals(PieceType.PAWN) && !newPiece.getPieceType().equals(PieceType.PAWN)) {
+            selectedPiece = newPiece;
+        }
+    }
+
     private Square getSquare(int row, int col) {
         int linearIndex = (8 - row - 1) * 8 + col;
         return Square.squareAt(linearIndex);
     }
 
+    private Piece getPiece(int row, int col) {
+        return board.getPiece(getSquare(row, col));
+    }
+
     private Move getMove(int fromRow, int fromCol, int toRow, int toCol) {
-        return new Move(getSquare(fromRow, fromCol), getSquare(toRow, toCol));
+        Square fromSquare = getSquare(fromRow, fromCol), toSquare = getSquare(toRow, toCol);
+        Piece promotion = getPromotionPiece(fromSquare, toSquare);
+
+        return new Move(fromSquare, toSquare, promotion);
+    }
+
+    private Piece getPromotionPiece(Square fromSquare, Square toSquare) {
+        int toRow = getRow(toSquare);
+
+        if (toRow == 0 && board.getPiece(fromSquare).equals(Piece.WHITE_PAWN)) {
+            return Piece.WHITE_QUEEN;
+        } else if (toRow == 7 && board.getPiece(fromSquare).equals(Piece.BLACK_PAWN)) {
+            return Piece.BLACK_QUEEN;
+        }
+
+        return Piece.NONE;
     }
 
     private String getMoveNotation(int fromRow, int fromCol, int toRow, int toCol) {
-        // Convert column index to letter (a-h)
-        String from = "" + (char) ('a' + fromCol);
-        // Convert row index to 1-based notation (1-8), so add 1 to fromRow and toRow
-        from += (8 - fromRow);  // The row 0 corresponds to rank 8, row 7 to rank 1
-
-        String to = "" + (char) ('a' + toCol);
-        to += (8 - toRow);  // Convert to 1-based notation
-
-        return from + "-" + to;
+        return new Move(getSquare(fromRow, fromCol), getSquare(toRow, toCol)).toString();
     }
 
     private void toggleTurn() {
-        whiteTurn = !whiteTurn;
+        this.sideToPlay = sideToPlay == Side.WHITE ? Side.BLACK : Side.WHITE;
     }
 
     private boolean isValidMove(int fromRow, int fromCol, int toRow, int toCol) {
         Move move = getMove(fromRow, fromCol, toRow, toCol);
 
-        List<Move> legalMoves = board.legalMoves();
-        return legalMoves.contains(move);
+        return board.legalMoves().contains(move);
     }
 
-    public void updateBoard(String move) {
+    public void makeMove(String move) {
         if (move.equals("reset")) {
             reset(false);
             return;
         }
 
-        String[] mv = move.split("-");
-        assert mv.length == 2;
+
+        assert move.length() == 4;
+        String[] mv = {move.substring(0, 2), move.substring(2)};
 
         int fromRow = getRow(mv[0]), fromCol = getCol(mv[0]),
                 toRow = getRow(mv[1]), toCol = getCol(mv[1]);
@@ -364,7 +351,7 @@ public class chessBoard extends JPanel {
         }
 
         pieceMap.clear();
-        this.whiteTurn = true;
+        this.sideToPlay = Side.WHITE;
         this.board = new Board();
 
         for (JButton[] row : gameCells) {

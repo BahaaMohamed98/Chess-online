@@ -33,7 +33,7 @@ public class Communicator {
                         return;
                     }
 
-                    chessBoard.updateBoard(move);
+                    chessBoard.makeMove(move);
                 } catch (IOException e) {
                     throw new RuntimeException("Connection closed or network error");
                 }
