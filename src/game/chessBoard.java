@@ -23,7 +23,6 @@ public class chessBoard extends JPanel {
     private Piece selectedPiece = null;
     private List<Move> selectedPieceLegalMoves;
     private int selectedRow = -1, selectedCol = -1;
-    private Side sideToPlay = Side.WHITE;
     private Side playerSide = null;
 
     private static final Color color_white = new Color(Color.white.getRGB());
@@ -96,12 +95,12 @@ public class chessBoard extends JPanel {
         }
 
         private void selectPiece(JButton clickedCell) {
-            if ((playerSide != null) && !playerSide.equals(sideToPlay)) {
+            if ((playerSide != null) && !playerSide.equals(board.getSideToMove())) {
                 return;
             }
 
             // check for whose turn
-            if (!pieceMap.get(clickedCell).getPieceSide().equals(sideToPlay)) {
+            if (!pieceMap.get(clickedCell).getPieceSide().equals(board.getSideToMove())) {
                 return;
             }
 
@@ -270,8 +269,6 @@ public class chessBoard extends JPanel {
         if (sendMove && communicator != null) {
             communicator.sendMove(getMoveNotation(fromRow, fromCol, toRow, toCol));
         }
-
-        toggleTurn();
     }
 
     private void doPromotion(int fromRow, int fromCol, int toRow, int toCol) {
@@ -315,10 +312,6 @@ public class chessBoard extends JPanel {
         return new Move(getSquare(fromRow, fromCol), getSquare(toRow, toCol)).toString();
     }
 
-    private void toggleTurn() {
-        this.sideToPlay = sideToPlay == Side.WHITE ? Side.BLACK : Side.WHITE;
-    }
-
     private boolean isValidMove(int fromRow, int fromCol, int toRow, int toCol) {
         Move move = getMove(fromRow, fromCol, toRow, toCol);
 
@@ -330,7 +323,6 @@ public class chessBoard extends JPanel {
             reset(false);
             return;
         }
-
 
         assert move.length() == 4;
         String[] mv = {move.substring(0, 2), move.substring(2)};
@@ -351,7 +343,7 @@ public class chessBoard extends JPanel {
         }
 
         pieceMap.clear();
-        this.sideToPlay = Side.WHITE;
+        this.board.setSideToMove(Side.WHITE);
         this.board = new Board();
 
         for (JButton[] row : gameCells) {
