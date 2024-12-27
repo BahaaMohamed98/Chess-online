@@ -259,7 +259,7 @@ public class chessBoard extends JPanel {
 
         pieceMap.remove(fromCell); // Clear the old cell
         fromCell.setIcon(null);
-        
+
         if (board.isKingAttacked()) {
             playSound("check");
         } else if (pieceMap.containsKey(toCell)) {
@@ -283,8 +283,7 @@ public class chessBoard extends JPanel {
 
     private Square getSquare(int row, int col) {
         int linearIndex = (8 - row - 1) * 8 + col;
-        Square s = Square.squareAt(linearIndex);
-        return s;
+        return Square.squareAt(linearIndex);
     }
 
     private Move getMove(int fromRow, int fromCol, int toRow, int toCol) {
