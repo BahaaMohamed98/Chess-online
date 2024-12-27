@@ -1,5 +1,6 @@
 package ui;
 
+import com.github.bhlangonijr.chesslib.Side;
 import game.chessBoard;
 import networking.GameClient;
 import ui.components.GameButton;
@@ -62,7 +63,7 @@ public class ConnectGamePanel extends JPanel {
             this.chessBoard.reset(false);
 
             // Set the player color to black
-            this.chessBoard.setPlayerColor("black");
+            this.chessBoard.setPlayerSide(Side.BLACK);
             
             // Switch to the game panel
             ChessApp.layout.show(ChessApp.mainPanel, "Game");

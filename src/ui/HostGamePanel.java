@@ -1,5 +1,6 @@
 package ui;
 
+import com.github.bhlangonijr.chesslib.Side;
 import game.chessBoard;
 import networking.GameHost;
 import ui.components.GameButton;
@@ -64,7 +65,7 @@ public class HostGamePanel extends JPanel {
             // Start the game host and show the game panel
             this.chessBoard.setCommunicator(gameHost);
             this.chessBoard.reset(false);
-            this.chessBoard.setPlayerColor("white");
+            this.chessBoard.setPlayerSide(Side.WHITE);
 
             ChessApp.layout.show(ChessApp.mainPanel, "Game");
             gameHost.start(Integer.parseInt(portText.getText()));
