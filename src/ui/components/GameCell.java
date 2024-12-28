@@ -18,22 +18,20 @@ public class GameCell extends JButton {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
-                setBackground(new Color(255, 255, 102), false); // Change to a hover color (light yellow)
+                updateBackground(new Color(255, 255, 102)); // Change to a hover color (light yellow)
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                setBackground(defaultColor, false); // Revert to original color when mouse exits
+                updateBackground(defaultColor); // Revert to original color when the mouse exits
             }
         });
     }
 
-    private void setBackground(Color bg, boolean updateDefault) {
+    private void updateBackground(Color bg) {
         Color current = this.defaultColor;
         setBackground(bg);
-        if (!updateDefault) {
-            this.defaultColor = current;
-        }
+        this.defaultColor = current;
     }
 
     @Override

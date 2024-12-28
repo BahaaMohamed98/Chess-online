@@ -30,6 +30,9 @@ public class chessBoard extends JPanel {
 
     private Communicator communicator = null;
 
+    Square enPassantSquare = Square.NONE;
+    Square enPassantPawnSquare = Square.NONE;
+
     public chessBoard() {
         setLayout(new GridLayout(8, 8));
 
@@ -249,16 +252,31 @@ public class chessBoard extends JPanel {
             return;
         }
 
-        board.doMove(getMove(fromRow, fromCol, toRow, toCol));
+        Move move = getMove(fromRow, fromCol, toRow, toCol);
+        board.doMove(move);
 
         doPromotion(fromRow, fromCol, toRow, toCol);
 
-        pieceMap.remove(fromCell); // Clear the old cell
-        fromCell.setIcon(null);
+        removePieceAt(fromCell);
+
+        boolean enPassantHappened = false;
+
+        // handling en passant
+        if (move.getTo().equals(enPassantSquare)) {
+            // set the pawn captured by en passant icon to be null
+            JButton removedCell = getCell(enPassantPawnSquare);
+            removePieceAt(removedCell);
+            enPassantHappened = true;
+        }
+
+        // update enPassant squares for the next move
+        enPassantPawnSquare = board.getEnPassantTarget();
+        enPassantSquare = board.getEnPassant();
+
 
         if (board.isKingAttacked()) {
             playSound("check");
-        } else if (pieceMap.containsKey(toCell)) {
+        } else if (pieceMap.containsKey(toCell) || enPassantHappened) {
             playSound("capture");
         } else {
             playSound("move");
@@ -269,6 +287,11 @@ public class chessBoard extends JPanel {
         if (sendMove && communicator != null) {
             communicator.sendMove(getMoveNotation(fromRow, fromCol, toRow, toCol));
         }
+    }
+
+    private void removePieceAt(JButton cell) {
+        pieceMap.remove(cell); // Clear the old cell
+        cell.setIcon(null);
     }
 
     private void doPromotion(int fromRow, int fromCol, int toRow, int toCol) {
