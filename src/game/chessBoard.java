@@ -1,6 +1,7 @@
 package game;
 
 import com.github.bhlangonijr.chesslib.*;
+import com.github.bhlangonijr.chesslib.game.GameContext;
 import com.github.bhlangonijr.chesslib.move.Move;
 import networking.Communicator;
 import ui.components.GameCell;
@@ -273,11 +274,12 @@ public class chessBoard extends JPanel {
         enPassantPawnSquare = board.getEnPassantTarget();
         enPassantSquare = board.getEnPassant();
 
-
         if (board.isKingAttacked()) {
             playSound("check");
         } else if (pieceMap.containsKey(toCell) || enPassantHappened) {
             playSound("capture");
+        } else if (doCastle(move)) {
+            playSound("castle");
         } else {
             playSound("move");
         }
@@ -286,6 +288,47 @@ public class chessBoard extends JPanel {
 
         if (sendMove && communicator != null) {
             communicator.sendMove(getMoveNotation(fromRow, fromCol, toRow, toCol));
+        }
+
+        checkGameOver();
+    }
+
+    private boolean doCastle(Move move) {
+        GameContext context = board.getContext();
+
+        // return false if it wasn't a castle move
+        if (!context.isCastleMove(move)) {
+            return false;
+        }
+
+        // flipping the side as the move was already played
+        Side side = board.getSideToMove().flip();
+
+        if (context.isKingSideCastle(move)) {
+            if (side.equals(Side.WHITE)) {
+                movePiece(context.getWhiteRookoo(), Piece.WHITE_ROOK);
+            } else {
+                movePiece(context.getBlackRookoo(), Piece.BLACK_ROOK);
+            }
+        } else {
+            if (side.equals(Side.WHITE)) {
+                movePiece(context.getWhiteRookooo(), Piece.WHITE_ROOK);
+            } else {
+                movePiece(context.getBlackRookooo(), Piece.BLACK_ROOK);
+            }
+        }
+
+        return true;
+    }
+
+    private void movePiece(Move move, Piece piece) {
+        removePieceAt(getCell(move.getFrom()));
+        setPiece(getCell(move.getTo()), piece);
+    }
+
+    private void checkGameOver() {
+        if (board.isMated() || board.isDraw()) {
+            reset(true);
         }
     }
 

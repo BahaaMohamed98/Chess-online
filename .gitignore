@@ -2,6 +2,8 @@
 out/
 src/META-INF/
 build/
+src/engine/
+assets/stockfish
 
 *.MF
 *.xml
