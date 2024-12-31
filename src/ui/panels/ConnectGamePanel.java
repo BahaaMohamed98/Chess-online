@@ -1,8 +1,9 @@
-package ui;
+package ui.panels;
 
 import com.github.bhlangonijr.chesslib.Side;
 import game.ChessBoard;
 import networking.GameClient;
+import ui.ChessApp;
 import ui.components.GameButton;
 import ui.components.GameLabel;
 import ui.components.GameTextField;

@@ -1,5 +1,6 @@
-package game;
+package ui.panels;
 
+import game.ChessBoard;
 import ui.ChessApp;
 import ui.components.GameButton;
 import ui.components.GameLabel;

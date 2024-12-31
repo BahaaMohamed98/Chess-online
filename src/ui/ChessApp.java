@@ -1,8 +1,10 @@
 package ui;
 
 import game.ChessBoard;
-import game.ChessGamePanel;
 import ui.components.GameButton;
+import ui.panels.ChessGamePanel;
+import ui.panels.ConnectGamePanel;
+import ui.panels.HostGamePanel;
 
 import javax.swing.*;
 import java.awt.*;
