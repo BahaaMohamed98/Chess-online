@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Variables
-JAR_FILE="Chess.jar"
+JAR_FILE="Chess_online.jar"
 JAR_DIR="../build/"
 ICON_FILE="../assets/images/gameIcon.png"
 MAIN_CLASS="ui.ChessApp"
