@@ -1,10 +1,10 @@
 package ui;
 
 import game.ChessBoard;
-import ui.components.GameButton;
 import ui.panels.ChessGamePanel;
 import ui.panels.ConnectGamePanel;
 import ui.panels.HostGamePanel;
+import ui.panels.MenuPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,8 +22,7 @@ public class ChessApp extends JFrame {
         setLocationRelativeTo(null); // Center the window
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        var imageIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/gameIcon.png")));
-        setIconImage(imageIcon.getImage());
+        setAppImage();
 
         chessBoard = new ChessBoard();
         layout = new CardLayout();
@@ -34,66 +33,17 @@ public class ChessApp extends JFrame {
         setVisible(true);
     }
 
+    private void setAppImage() {
+        ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/gameIcon.png")));
+        setIconImage(imageIcon.getImage());
+    }
+
     private void addPanels() {
-        JPanel menuPanel = getMenuPanel();
-        mainPanel.add(menuPanel, "Menu");
-
-        JPanel gamePanel = new ChessGamePanel(chessBoard);
-        mainPanel.add(gamePanel, "Game");
-
-        JPanel hostGamePanel = new HostGamePanel(chessBoard);
-        mainPanel.add(hostGamePanel, "Host");
-
-        JPanel connectGamePanel = new ConnectGamePanel(chessBoard);
-        mainPanel.add(connectGamePanel, "Connect");
-
+        mainPanel.add(new MenuPanel(), "Menu");
+        mainPanel.add(new ChessGamePanel(chessBoard), "Game");
+        mainPanel.add(new HostGamePanel(chessBoard), "Host");
+        mainPanel.add(new ConnectGamePanel(chessBoard), "Connect");
         add(mainPanel);
-    }
-
-    private static JPanel getMenuPanel() {
-        JPanel menuPanel = new JPanel();
-        menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
-        menuPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20)); // Add padding around the panel
-        menuPanel.setBackground(new Color(30, 30, 30)); // Match the game panel background
-
-        JLabel titleLabel = getTitleLabel();
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Ensure the title is centered
-        menuPanel.add(titleLabel);
-        menuPanel.add(Box.createVerticalStrut(10)); // Add vertical padding
-
-        JButton startButton = new GameButton("Start game");
-        startButton.addActionListener(_ -> layout.show(mainPanel, "Game"));
-        startButton.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the button
-        menuPanel.add(startButton);
-        menuPanel.add(Box.createVerticalStrut(10)); // Add vertical padding
-
-        JButton hostGameButton = new GameButton("Host game");
-        hostGameButton.addActionListener(_ -> layout.show(mainPanel, "Host"));
-        hostGameButton.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the button
-        menuPanel.add(hostGameButton);
-        menuPanel.add(Box.createVerticalStrut(10)); // Add vertical padding
-
-        JButton connectGameButton = new GameButton("Connect to game");
-        connectGameButton.addActionListener(_ -> layout.show(mainPanel, "Connect"));
-        connectGameButton.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the button
-        menuPanel.add(connectGameButton);
-        menuPanel.add(Box.createVerticalStrut(10)); // Add vertical padding
-
-        JButton exitButton = new GameButton("Exit");
-        exitButton.addActionListener(_ -> System.exit(0));
-        exitButton.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the button
-        menuPanel.add(exitButton);
-
-        return menuPanel;
-    }
-
-    private static JLabel getTitleLabel() {
-        JLabel titleLabel = new JLabel("Chess Menu", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-        titleLabel.setForeground(Color.WHITE);
-        titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 100, 0)); // Add padding below the title
-
-        return titleLabel;
     }
 
     public static void show(JPanel panel, String name) {
@@ -101,6 +51,6 @@ public class ChessApp extends JFrame {
     }
 
     public static void main() {
-        new ChessApp();
+        SwingUtilities.invokeLater(ChessApp::new);
     }
 }
