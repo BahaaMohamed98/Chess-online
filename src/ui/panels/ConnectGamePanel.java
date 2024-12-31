@@ -67,7 +67,7 @@ public class ConnectGamePanel extends JPanel {
             this.chessBoard.setPlayerSide(Side.BLACK);
 
             // Switch to the game panel
-            ChessApp.layout.show(ChessApp.mainPanel, "Game");
+            ChessApp.showGamePanel();
 
             // Start the client communication
             gameClient.connect(ipText.getText(), Integer.parseInt(portText.getText()));
@@ -79,7 +79,7 @@ public class ConnectGamePanel extends JPanel {
     private JButton getBackButton() {
         JButton backButton = new GameButton("Menu");
         backButton.setPreferredSize(new Dimension(250, 40));
-        backButton.addActionListener(_ -> ChessApp.layout.show(ChessApp.mainPanel, "Menu"));
+        backButton.addActionListener(_ -> ChessApp.showMenu());
 
         return backButton;
     }

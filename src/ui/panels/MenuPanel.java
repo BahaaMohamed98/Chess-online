@@ -21,27 +21,20 @@ public class MenuPanel extends JPanel {
         add(titleLabel);
         add(Box.createVerticalStrut(10)); // Add vertical padding
 
-        addButton("Start game", "Game");
-        addButton("Host game", "Host");
-        addButton("Connect to game", "Connect");
-        addExitButton();
+        addButton("Start game", ChessApp::showGamePanel);
+        addButton("Host game", ChessApp::showHostPanel);
+        addButton("Connect to game", ChessApp::showConnectPanel);
+        addButton("Exit", ChessApp::exit);
     }
 
-    private void addButton(String text, String panelToShow) {
+    private void addButton(String text, Runnable action) {
         JButton button = new GameButton(text);
 
-        button.addActionListener(_ -> ChessApp.show(ChessApp.mainPanel, panelToShow));
+        button.addActionListener(_ -> action.run());
         button.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the button
 
         add(button);
         add(Box.createVerticalStrut(10)); // Add vertical padding
-    }
-
-    private void addExitButton() {
-        JButton exitButton = new GameButton("Exit");
-        exitButton.addActionListener(_ -> System.exit(0));
-        exitButton.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the button
-        add(exitButton);
     }
 
     private static JLabel getTitleLabel() {

@@ -98,7 +98,7 @@ public class ChessGamePanel extends JPanel {
         // Menu button with a border
         JButton menuButton = new GameButton("Menu");
         menuButton.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2)); // Add white border
-        menuButton.addActionListener(_ -> ChessApp.show(ChessApp.mainPanel, "Menu"));
+        menuButton.addActionListener(_ -> ChessApp.showMenu());
         buttonPanel.add(menuButton);
 
         // Restart button with a border
@@ -110,7 +110,7 @@ public class ChessGamePanel extends JPanel {
         // Exit button with a border
         JButton exitButton = new GameButton("Exit");
         exitButton.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2)); // Add white border
-        exitButton.addActionListener(_ -> System.exit(0));
+        exitButton.addActionListener(_ -> ChessApp.exit());
         buttonPanel.add(exitButton);
     }
 }

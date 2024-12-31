@@ -11,8 +11,8 @@ import java.awt.*;
 import java.util.Objects;
 
 public class ChessApp extends JFrame {
-    static public JPanel mainPanel;
-    static public CardLayout layout;
+    private static JPanel mainPanel;
+    private static CardLayout layout;
     private final ChessBoard chessBoard;
 
     public ChessApp() {
@@ -46,11 +46,30 @@ public class ChessApp extends JFrame {
         add(mainPanel);
     }
 
-    public static void show(JPanel panel, String name) {
-        layout.show(panel, name);
+    public static void showMenu() {
+        layout.show(mainPanel, "Menu");
     }
 
-    public static void main() {
+    public static void showGamePanel() {
+        layout.show(mainPanel, "Game");
+    }
+
+    public static void showHostPanel() {
+        layout.show(mainPanel, "Host");
+    }
+
+    public static void showConnectPanel() {
+        layout.show(mainPanel, "Connect");
+    }
+
+    public static void exit() {
+        JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(mainPanel);
+        if (frame != null) {
+            frame.dispose();
+        }
+    }
+
+    public static void main(String[] args) {
         SwingUtilities.invokeLater(ChessApp::new);
     }
 }
