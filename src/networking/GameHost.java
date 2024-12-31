@@ -1,5 +1,7 @@
 package networking;
 
+import game.ChessBoard;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -7,7 +9,7 @@ import java.net.Socket;
 public class GameHost extends Communicator {
     private ServerSocket serverSocket;
 
-    public GameHost(game.chessBoard chessBoard) {
+    public GameHost(ChessBoard chessBoard) {
         super.chessBoard = chessBoard;
     }
 

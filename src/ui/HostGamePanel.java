@@ -1,7 +1,7 @@
 package ui;
 
 import com.github.bhlangonijr.chesslib.Side;
-import game.chessBoard;
+import game.ChessBoard;
 import networking.GameHost;
 import ui.components.GameButton;
 import ui.components.GameLabel;
@@ -14,11 +14,11 @@ import java.net.UnknownHostException;
 
 public class HostGamePanel extends JPanel {
 
-    game.chessBoard chessBoard;
+    ChessBoard chessBoard;
     GameHost gameHost;
     JTextField portText;
 
-    public HostGamePanel(chessBoard chessBoard) {
+    public HostGamePanel(ChessBoard chessBoard) {
         this.chessBoard = chessBoard;
 
         // Set layout and background color

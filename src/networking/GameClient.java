@@ -1,12 +1,14 @@
 package networking;
 
+import game.ChessBoard;
+
 import java.io.*;
 import java.net.Socket;
 
 public class GameClient extends Communicator {
     private Socket socket;
 
-    public GameClient(game.chessBoard chessBoard) {
+    public GameClient(ChessBoard chessBoard) {
         super.chessBoard = chessBoard;
     }
 

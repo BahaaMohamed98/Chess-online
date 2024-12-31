@@ -8,9 +8,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ChessGamePanel extends JPanel {
-    private final chessBoard chessBoard;
+    private final ChessBoard chessBoard;
 
-    public ChessGamePanel(chessBoard chessBoard) {
+    public ChessGamePanel(ChessBoard chessBoard) {
         setLayout(new BorderLayout());
         this.chessBoard = chessBoard;
 
@@ -47,7 +47,7 @@ public class ChessGamePanel extends JPanel {
         chessBoardContainer.setBackground(new Color(50, 50, 50));
         chessBoardContainer.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Ensure the chessBoard maintains its preferred size
+        // Ensure the ChessBoard maintains its preferred size
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;

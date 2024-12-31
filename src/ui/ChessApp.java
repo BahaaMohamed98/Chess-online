@@ -1,7 +1,7 @@
 package ui;
 
+import game.ChessBoard;
 import game.ChessGamePanel;
-import game.chessBoard;
 import ui.components.GameButton;
 
 import javax.swing.*;
@@ -11,7 +11,7 @@ import java.util.Objects;
 public class ChessApp extends JFrame {
     static public JPanel mainPanel;
     static public CardLayout layout;
-    private final chessBoard chessBoard;
+    private final ChessBoard chessBoard;
 
     public ChessApp() {
         setTitle("Chess");
@@ -23,7 +23,7 @@ public class ChessApp extends JFrame {
         var imageIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/images/gameIcon.png")));
         setIconImage(imageIcon.getImage());
 
-        chessBoard = new chessBoard();
+        chessBoard = new ChessBoard();
         layout = new CardLayout();
         mainPanel = new JPanel(layout);
 
@@ -98,7 +98,7 @@ public class ChessApp extends JFrame {
         layout.show(panel, name);
     }
 
-    public static void main(String[] args) {
+    public static void main() {
         new ChessApp();
     }
 }

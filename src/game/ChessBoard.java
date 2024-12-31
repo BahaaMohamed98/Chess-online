@@ -4,6 +4,7 @@ import com.github.bhlangonijr.chesslib.*;
 import com.github.bhlangonijr.chesslib.game.GameContext;
 import com.github.bhlangonijr.chesslib.move.Move;
 import networking.Communicator;
+import ui.AssetLoader;
 import ui.components.GameCell;
 
 import javax.swing.*;
@@ -11,13 +12,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
-import javax.sound.sampled.*;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
-public class chessBoard extends JPanel {
+public class ChessBoard extends JPanel {
     private final JButton[][] gameCells = new GameCell[8][8];
     private final HashMap<JButton, Piece> pieceMap = new HashMap<>();
     private Board board;
@@ -34,11 +32,10 @@ public class chessBoard extends JPanel {
     Square enPassantSquare = Square.NONE;
     Square enPassantPawnSquare = Square.NONE;
 
-    public chessBoard() {
+    public ChessBoard() {
         setLayout(new GridLayout(8, 8));
 
         this.board = new Board();
-        this.board.setSideToMove(Side.WHITE);
 
         initializeCells();
         initializePieces();
@@ -56,6 +53,7 @@ public class chessBoard extends JPanel {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 JButton cell = new GameCell(getDefaultColor(row, col));
+                cell.setLayout(new BorderLayout());
 
                 cell.addActionListener(new ChessActionListener(row, col));
 
@@ -188,37 +186,17 @@ public class chessBoard extends JPanel {
     private void setPiece(JButton button, Piece piece) {
         // Associate the button with the piece name
         pieceMap.put(button, piece);
-        button.setIcon(loadPieceImage(piece));
+        Icon icon = getPieceImage(piece);
+        button.setIcon(icon);
     }
 
-    private ImageIcon loadPieceImage(Piece piece) {
-        String filePath = "/images/" + piece.name() + ".png";
-        var iconURL = getClass().getResource(filePath);
-
-        if (iconURL == null) {
-            System.err.println("Image not found: " + filePath);
-            return null;
-        }
-
-        ImageIcon icon = new ImageIcon(iconURL);
-
+    private ImageIcon getPieceImage(Piece piece) {
         int size = 70;
-        Image scaledImage = icon.getImage().getScaledInstance(size, size, Image.SCALE_SMOOTH);
-        return new ImageIcon(scaledImage);
+        return AssetLoader.getIcon(piece.name(), size, size);
     }
 
     private void playSound(String soundFile) {
-        new Thread(() -> {
-            try {
-                String path = "/sounds/" + soundFile + ".wav";
-                AudioInputStream audioStream = AudioSystem.getAudioInputStream(Objects.requireNonNull(getClass().getResource(path)));
-                var clip = AudioSystem.getClip();
-                clip.open(audioStream);
-                clip.start();
-            } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-                System.err.println("Error playing sound: " + e.getMessage());
-            }
-        }).start();
+        new Thread(() -> AssetLoader.getSound(soundFile).start()).start();
     }
 
     private Color getDefaultColor(int row, int col) {

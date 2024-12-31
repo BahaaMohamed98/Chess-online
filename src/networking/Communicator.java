@@ -1,11 +1,13 @@
 package networking;
 
+import game.ChessBoard;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 public class Communicator {
-    protected game.chessBoard chessBoard;
+    protected ChessBoard chessBoard;
     protected boolean isRunning;
     protected BufferedReader input;
     protected PrintWriter output = null;
@@ -16,7 +18,7 @@ public class Communicator {
     }
 
     // Send a move to the server
-    public void sendMove(String move)  {
+    public void sendMove(String move) {
         output.println(move);
         System.out.println("Sent move: " + move);
     }

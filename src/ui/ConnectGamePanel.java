@@ -1,7 +1,7 @@
 package ui;
 
 import com.github.bhlangonijr.chesslib.Side;
-import game.chessBoard;
+import game.ChessBoard;
 import networking.GameClient;
 import ui.components.GameButton;
 import ui.components.GameLabel;
@@ -11,11 +11,11 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ConnectGamePanel extends JPanel {
-    game.chessBoard chessBoard;
+    ChessBoard chessBoard;
     GameClient gameClient;
     JTextField ipText, portText;
 
-    public ConnectGamePanel(chessBoard chessBoard) {
+    public ConnectGamePanel(ChessBoard chessBoard) {
         this.chessBoard = chessBoard;  // Create a new chessboard instance
 
         setLayout(new BorderLayout());
@@ -64,7 +64,7 @@ public class ConnectGamePanel extends JPanel {
 
             // Set the player color to black
             this.chessBoard.setPlayerSide(Side.BLACK);
-            
+
             // Switch to the game panel
             ChessApp.layout.show(ChessApp.mainPanel, "Game");
 
